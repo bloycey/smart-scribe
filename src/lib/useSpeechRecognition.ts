@@ -35,6 +35,10 @@ export function useSpeechRecognition(opts: {
   const wantRecordingRef = useRef(false);
   const restartAttemptRef = useRef(0);
   const restartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Tracks the highest result index we've already emitted as a final chunk.
+  // Defends against Chrome occasionally re-firing onresult with the same
+  // already-final results (which would duplicate the words in the transcript).
+  const lastEmittedFinalIndexRef = useRef(-1);
   const [status, setStatus] = useState<Status>("idle");
   const [interim, setInterim] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -86,6 +90,8 @@ export function useSpeechRecognition(opts: {
     rec.onstart = () => {
       setStatus("recording");
       setError(null);
+      // A new recognition session starts with a fresh results array.
+      lastEmittedFinalIndexRef.current = -1;
     };
 
     rec.onresult = (event: SpeechRecognitionEvent) => {
@@ -96,8 +102,10 @@ export function useSpeechRecognition(opts: {
         const res = event.results[i];
         const transcript = res[0]?.transcript ?? "";
         if (res.isFinal) {
+          if (i <= lastEmittedFinalIndexRef.current) continue;
           const trimmed = transcript.trim();
           if (trimmed) onFinalRef.current(trimmed);
+          lastEmittedFinalIndexRef.current = i;
         } else {
           interimText += transcript;
         }

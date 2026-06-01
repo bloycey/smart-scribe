@@ -18,7 +18,7 @@ const RealtimeSchema = z.object({
     .max(60)
     .nullable()
     .describe(
-      "A specific 3-7 word title for this recording based on what you've heard so far. Lead with the noun. No 'Discussion of', 'About', filler. Null if the chunk doesn't reveal enough to name it yet.",
+      "A specific 3-7 word title for this recording based on what you've heard. Lead with the noun. No 'Discussion of', 'About', filler. Produce a title whenever the chunk hints at a topic — even 'Quick test' or 'Microphone check' is better than null. Only return null if the chunk is pure filler with zero topical content.",
     ),
 });
 
@@ -52,11 +52,23 @@ Style:
 You are NEVER shown previously-emitted items. Do not try to summarise or
 de-duplicate against earlier chunks — just emit what is new in THIS chunk.
 
-Also: emit a short, specific title for this recording if the chunk reveals
-enough about what it's about. 3-7 words, lead with the noun, no filler. The
-title gets refined on each tick. Null is fine when there's not enough yet.`;
+Also: emit a short, specific title for this recording. 3-7 words, lead with
+the noun, no filler. The title gets refined on each tick — favour producing
+something over null. Only return null if the chunk is pure filler with no
+topic at all.`;
 
-const DEFAULT_TITLE = "Untitled note";
+// Either of these is treated as "user hasn't picked a title yet". The legacy
+// value is here for databases that haven't run the rename migration's
+// `alter column ... set default` step.
+const PLACEHOLDER_TITLES = new Set([
+  "",
+  "Untitled note",
+  "Untitled meeting",
+]);
+
+function isPlaceholderTitle(t: string | null | undefined): boolean {
+  return PLACEHOLDER_TITLES.has((t ?? "").trim());
+}
 
 export type RealtimeExtractionResult = {
   newInsights: RealtimeInsight[];
@@ -91,7 +103,7 @@ export async function extractRealtimeInsights(
   if (
     object.suggestedTitle &&
     object.suggestedTitle.trim() &&
-    data.title === DEFAULT_TITLE
+    isPlaceholderTitle(data.title)
   ) {
     titleUpdate = object.suggestedTitle.trim();
   }
