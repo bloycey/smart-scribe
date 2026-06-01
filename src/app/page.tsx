@@ -1,65 +1,80 @@
-import Image from "next/image";
+import { supabase } from "@/lib/supabase";
+import { createNote } from "./actions";
+import NoteListItem from "./NoteListItem";
+import type { Note } from "@/lib/types";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const { data: notes, error } = await supabase()
+    .from("notes")
+    .select("id, title, created_at, final_summary")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    return (
+      <div className="mx-auto max-w-2xl pt-24">
+        <p className="text-sm text-red-700">
+          Supabase error: {error.message}. Check your env vars and that the
+          <code className="px-1">notes</code> table exists.
+        </p>
+      </div>
+    );
+  }
+
+  const rows = (notes ?? []) as Array<
+    Pick<Note, "id" | "title" | "created_at" | "final_summary">
+  >;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="mx-auto max-w-2xl pt-16">
+      <div className="flex items-end justify-between mb-12">
+        <div>
+          <h1 className="font-serif text-4xl tracking-tight">Notes</h1>
+          <p className="mt-2 text-muted text-sm">
+            A considered scribe for anything you can say out loud.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        <form action={createNote}>
+          <button
+            type="submit"
+            className="rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-medium hover:opacity-85 transition"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            + New note
+          </button>
+        </form>
+      </div>
+
+      {rows.length === 0 ? (
+        <div className="mt-24 text-center">
+          <p className="font-serif text-2xl text-foreground/80 mb-3">
+            Nothing yet.
+          </p>
+          <p className="text-sm text-muted mb-8">
+            Start your first note and the scribe will listen.
+          </p>
+          <form action={createNote}>
+            <button
+              type="submit"
+              className="rounded-full border border-subtle px-5 py-2.5 text-sm font-medium hover:bg-foreground hover:text-background transition"
+            >
+              Start a note
+            </button>
+          </form>
         </div>
-      </main>
+      ) : (
+        <ul className="divide-y divide-subtle">
+          {rows.map((n) => (
+            <NoteListItem
+              key={n.id}
+              id={n.id}
+              title={n.title}
+              createdAt={n.created_at}
+              snippet={n.final_summary?.executiveSummary ?? null}
+            />
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
