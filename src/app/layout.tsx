@@ -33,7 +33,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <header className="px-8 py-6">
+        <header className="px-5 sm:px-8 py-5 sm:py-6">
           <Link
             href="/"
             className="group inline-flex items-center gap-2.5 text-foreground hover:opacity-80 transition"
@@ -49,7 +49,7 @@ export default function RootLayout({
             </span>
           </Link>
         </header>
-        <main className="flex-1 px-8 pb-16">{children}</main>
+        <main className="flex-1 px-5 sm:px-8 pb-16">{children}</main>
       </body>
     </html>
   );

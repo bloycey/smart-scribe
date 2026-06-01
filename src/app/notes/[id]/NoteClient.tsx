@@ -264,7 +264,7 @@ export default function NoteClient({ note }: { note: Note }) {
   return (
     <>
     <InsightToasts toasts={toasts} onDismiss={dismissToast} />
-    <div className="mx-auto max-w-3xl pt-12">
+    <div className="mx-auto max-w-3xl pt-8 sm:pt-12">
       <div className="flex items-start gap-3">
         <label className="group relative flex-1 cursor-text rounded-lg px-2 -mx-2 py-2 hover:bg-foreground/[0.03] focus-within:bg-foreground/[0.04] transition">
           <input
@@ -337,7 +337,7 @@ export default function NoteClient({ note }: { note: Note }) {
       </p>
 
 
-      <div className="mt-10 flex items-center gap-4">
+      <div className="mt-10 flex items-center gap-4 flex-wrap">
         {status === "unsupported" ? (
           <p className="text-sm text-red-700">
             This browser doesn&apos;t support the Web Speech API. Try Chrome,
@@ -390,7 +390,7 @@ export default function NoteClient({ note }: { note: Note }) {
       )}
 
       {!isRecording && (finalSummary || summaryError) && (
-        <div className="mt-8 flex items-center gap-4">
+        <div className="mt-8 flex items-center gap-4 flex-wrap">
           <button
             type="button"
             onClick={handleGenerate}
@@ -459,7 +459,7 @@ export default function NoteClient({ note }: { note: Note }) {
           role="dialog"
           aria-modal="true"
           aria-labelledby="instructions-heading"
-          className="relative w-full max-w-lg rounded-2xl border border-subtle bg-background shadow-[0_20px_60px_-20px_rgba(0,0,0,0.3)] p-6"
+          className="relative w-full max-w-lg rounded-2xl border border-subtle bg-background shadow-[0_20px_60px_-20px_rgba(0,0,0,0.3)] p-5 sm:p-6"
           onClick={(e) => e.stopPropagation()}
         >
           <h2

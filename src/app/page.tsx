@@ -27,18 +27,18 @@ export default async function HomePage() {
   >;
 
   return (
-    <div className="mx-auto max-w-2xl pt-16">
-      <div className="flex items-end justify-between mb-12">
+    <div className="mx-auto max-w-2xl pt-10 sm:pt-16">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between mb-10 sm:mb-12">
         <div>
           <h1 className="font-serif text-4xl tracking-tight">Notes</h1>
           <p className="mt-2 text-muted text-sm">
             A considered scribe for anything you can say out loud.
           </p>
         </div>
-        <form action={createNote}>
+        <form action={createNote} className="shrink-0">
           <button
             type="submit"
-            className="rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-medium hover:opacity-85 transition"
+            className="rounded-full bg-foreground text-background px-5 py-2.5 text-sm font-medium hover:opacity-85 transition whitespace-nowrap"
           >
             + New note
           </button>
@@ -50,17 +50,9 @@ export default async function HomePage() {
           <p className="font-serif text-2xl text-foreground/80 mb-3">
             Nothing yet.
           </p>
-          <p className="text-sm text-muted mb-8">
+          <p className="text-sm text-muted">
             Start your first note and the scribe will listen.
           </p>
-          <form action={createNote}>
-            <button
-              type="submit"
-              className="rounded-full border border-subtle px-5 py-2.5 text-sm font-medium hover:bg-foreground hover:text-background transition"
-            >
-              Start a note
-            </button>
-          </form>
         </div>
       ) : (
         <ul className="divide-y divide-subtle">
